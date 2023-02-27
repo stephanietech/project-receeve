@@ -1,96 +1,70 @@
-name: Lamdafunction 
+name: Lambda Function Deployment
 
 on:
   workflow_dispatch:
-
     inputs:
       EnvName:
         description: 'dev | uat | test'
         required: true
         default: 'test'
-
       BucketName:
-        description: 'bucket name'
+        description: 'Bucket name'
         required: true
         default: 'receevebucket-name'
-
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 18
-        
-    - name: build
-      run: npm i
-      
-    - name: Install zip
-      uses: montudor/action-zip@v1
-
-    - name: Zip output
-      run: zip -qq -r ./function.zip .
-      #working-directory: artifact/publish
-      
-   # - name: Copy Cloudformation Template
-   #   run: cd iac
-    - uses: actions/upload-artifact@v3
-      with:
-        name: iac
-        path: ./iac
-  
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
-    
-    - name: Upload to S3
-      run: |
-       #aws lambda update-function-code --function-name lambda-function- --zip-file fileb://function.zip --s3-bucket receevebucket-name
-
-      
-  test-deploy-env:
-    runs-on: ubuntu-latest
-    environment: test
-    needs: build
-    
-    steps:
-      - uses: actions/download-artifact@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install Node.js and NPM
+        uses: actions/setup-node@v2
         with:
-          name: iac
-          path: ./iac
-      
+          node-version: 16.x
+      - name: Install dependencies
+        run: npm install
+      - name: Build zip file
+        run: zip -qr function.zip .
+        working-directory: .
+      - name: Upload zip file to S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --follow-symlinks --delete
+        env:
+          AWS_S3_BUCKET: ${{ inputs.BucketName }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Upload CloudFormation template
+        uses: actions/upload-artifact@v2
+        with:
+          name: cloudformation-template
+          path: iac/
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-          
-          
-      - name: list folder
-        run: ls -altr
-      
-      - name: Deploy to AWS CloudFormation
+      - name: Deploy Lambda function
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: cloudformation-demo-lambda
+          stack-name: lambda-function-stack
           template: iac/receevelamdafunction.yml
-          parameter-overrides: >-
-            EnvName=test-deploy-env,
-            BucketName=${{ inputs.BucketName }}
-          no-fail-on-empty-changeset: "1"
+          parameter-overrides: EnvName=${{ inputs.EnvName }} BucketName=${{ inputs.BucketName }}
           capabilities: CAPABILITY_NAMED_IAM
+
 
 
           
