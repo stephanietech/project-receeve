@@ -5,9 +5,9 @@ on:
 
     inputs:
       EnvName:
-        description: 'dev | uat | Test'
+        description: 'dev | uat | test'
         required: true
-        default: 'Test'
+        default: 'test'
 
       BucketName:
         description: 'bucket name'
