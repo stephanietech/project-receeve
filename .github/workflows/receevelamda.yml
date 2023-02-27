@@ -84,11 +84,14 @@ jobs:
       - name: Deploy to AWS CloudFormation
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          stack-name: cloudformationlamda
-          template-file: .iac/receevelamdafunction.yml
-          parameter-overrides: EnvName=test-deploy-env
-          aws-region: us-east-1
+          name: cloudformation-demo-lambda
+          template: iac/receevelamdafunction.yml
+          parameter-overrides: >-
+            EnvName=test-deploy-env,
+            BucketName=${{ inputs.BucketName }}
+          no-fail-on-empty-changeset: "1"
           capabilities: CAPABILITY_NAMED_IAM
+
 
           
   
