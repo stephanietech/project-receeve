@@ -12,7 +12,7 @@ on:
       BucketName:
         description: 'bucket name'
         required: true
-        default:  "receevebucket-name"
+        default: 'receevebucket-name'
 
   push:
     branches: [ main ]
