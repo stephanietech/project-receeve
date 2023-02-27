@@ -59,7 +59,7 @@ jobs:
        #aws lambda update-function-code --function-name lambda-function- --zip-file fileb://function.zip --s3-bucket receevebucket-name
 
       
-  test-deploy:
+  test-deploy-env:
     runs-on: ubuntu-latest
     environment: test
     needs: build
@@ -84,12 +84,11 @@ jobs:
       - name: Deploy to AWS CloudFormation
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: cloudformation-demo-lambda
-          template: iac/receevelamdafunction.yml
-          parameter-overrides: >-
-            EnvName=${{ inputs.EnvName }},
-            BucketName=${{ inputs.BucketName }}
-          no-fail-on-empty-changeset: "1"
-          capabilities: CAPABILITY_NAMED_IAM 
+          stack-name: cloudformationlamda
+          template-file: ./receevelamdafunction.yml
+          parameter-overrides: EnvName=test-deploy-env
+          aws-region: us-east-1
+          capabilities: CAPABILITY_NAMED_IAM
+
           
   
