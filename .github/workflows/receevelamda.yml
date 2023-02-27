@@ -5,14 +5,14 @@ on:
 
     inputs:
       EnvName:
-        description: 'dev | stg | Test'
+        description: 'dev | uat | Test'
         required: true
         default: 'Test'
 
       BucketName:
         description: 'bucket name'
         required: true
-        default: 'reeceve-test-waseem'
+        default: 'receevebucket-name'
 
   push:
     branches: [ main ]
@@ -85,7 +85,7 @@ jobs:
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
           name: cloudformation-demo-lambda
-          template: iac/lambda.yml
+          template: iac/receevelamdafunction.yml
           parameter-overrides: >-
             EnvName=${{ inputs.EnvName }},
             BucketName=${{ inputs.BucketName }}
