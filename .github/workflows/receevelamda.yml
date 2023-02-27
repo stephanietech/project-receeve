@@ -85,7 +85,7 @@ jobs:
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
           stack-name: cloudformationlamda
-          template-file: ./receevelamdafunction.yml
+          template-file: .iac/receevelamdafunction.yml
           parameter-overrides: EnvName=test-deploy-env
           aws-region: us-east-1
           capabilities: CAPABILITY_NAMED_IAM
