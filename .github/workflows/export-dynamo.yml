@@ -1,4 +1,4 @@
-name: Cloudformation_dynamo
+name: export to dynamodb 
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
       BucketName:
         description: 'bucket name'
         required: true
-        default: 'reeceve-test-waseem'
+        default: 'receevebucket-name'
       HashKeyElementName:
         description: 'dynamo db primary id'
         required: true
@@ -39,8 +39,8 @@ jobs:
       - name: Deploy to AWS CloudFormation
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: cloudformation-demo
-          template: iac/dynomodb.yml
+          name: receevedynamodb
+          template: iac/receevedynamodb.yml
           parameter-overrides: >-
             BucketName=${{ inputs.BucketName }},
             HashKeyElementName=${{ inputs.HashKeyElementName }}
