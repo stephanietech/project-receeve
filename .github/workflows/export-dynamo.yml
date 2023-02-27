@@ -8,7 +8,7 @@ on:
       BucketName:
         description: 'bucket name'
         required: true
-        default: 'receevebucket-name'
+        default:  "receevebucket-name"
       HashKeyElementName:
         description: 'dynamo db primary id'
         required: true
