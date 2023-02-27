@@ -1,0 +1,83 @@
+AWSTemplateFormatVersion: '2010-09-09'
+ 
+  
+Description: 'CloudFormation template for deploying a Lambda function that exports data from DynamoDB to S3 daily.'
+Parameters:
+  HashKeyElementName:
+    Description: HashType PrimaryKey Name
+    Type: String
+    Default: ID
+    AllowedPattern: '[a-zA-Z0-9]*'
+    MinLength: '1'
+    MaxLength: '2048'
+    ConstraintDescription:  contain only alphanumberic characters
+  HashKeyElementType:
+    Description: HashType PrimaryKey Type
+    Type: String
+    Default: S
+    AllowedPattern: '[S|N]'
+    MinLength: '1'
+    MaxLength: '1'
+    ConstraintDescription: must be either S or N
+  ReadCapacityUnits:
+    Description: Provisioned read throughput
+    Type: Number
+    Default: '1'
+    MinValue: '1'
+    MaxValue: '10000'
+    ConstraintDescription: must be between 5 and 10000
+  WriteCapacityUnits:
+    Description: Provisioned write throughput
+    Type: Number
+    Default: '1'
+    MinValue: '1'
+    MaxValue: '10000'
+    ConstraintDescription: must be between 5 and 10000
+  PointInTimeRecoverySpecification:
+    Description: PITR enable and diable
+    Type: String
+    Default: 'True'
+  BucketName:
+    Type: String
+    Default: "receevebucket-name"
+
+Resources:
+  MainBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: !Ref BucketName
+
+  myDynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+      - AttributeName: !Ref 'HashKeyElementName'
+        AttributeType: !Ref 'HashKeyElementType'
+      KeySchema:
+      - AttributeName: !Ref 'HashKeyElementName'
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: !Ref 'ReadCapacityUnits'
+        WriteCapacityUnits: !Ref 'WriteCapacityUnits'
+      PointInTimeRecoverySpecification: 
+        PointInTimeRecoveryEnabled: !Ref 'PointInTimeRecoverySpecification'
+      #S3BucketSource:  
+      #  S3Bucket: !Ref MainBucket  
+  
+Outputs:
+  #TableName:
+  #  Value: !Select [1, !Split ['/', !GetAtt DynamoDBTable.Arn]] 
+  #  Description: Table name of the newly created DynamoDB table'
+  #  Export:
+  #    Name: tablename
+
+  dynamoarn:
+    Value: !GetAtt myDynamoDBTable.Arn
+    Export:
+      Name: dynamoarn
+
+  MainBucketName:
+    Description: Name of the main bucket
+    Value: !Ref MainBucket 
+    Export:
+      Name: MainBucketName

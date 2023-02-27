@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudWatch Events rule that triggers the Lambda function daily 'eventrule1'
+Resources:
+  EventRule0:
+    Type: AWS::Events::Rule
+    Properties:
+      EventBusName: default
+      Name: eventrule1
+      ScheduleExpression: cron(00 2 * * ? *)
+      State: ENABLED
+      Targets:
+        - Id: 
+             Fn::ImportValue: !Sub lambdaid
+          Arn: 
+             Fn::ImportValue: !Sub lambdaarn
